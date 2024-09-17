@@ -50,6 +50,8 @@ function Navbar({
       </div>
 
       <div className="flex flex-row items-center justify-between p-4 gap-4 md:gap-8">
+         {/*// TODO:  Disini tempat custom angka array dari berapa sampai berapa */}
+      
         <div>
           <RangeSlider onChange={handleSizeAndSpeedChange} value={arraySize} />
         </div>

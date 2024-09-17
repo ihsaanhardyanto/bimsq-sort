@@ -21,6 +21,7 @@ BIMSQ is an abbreviation for Bubble Sort, Insertion Sort, Merge Sort, Selection 
 - React JS
 - Vite
 - Tailwind CSS
+- Shadcn UI
 
 ## Installation
 
@@ -28,6 +29,7 @@ BIMSQ is an abbreviation for Bubble Sort, Insertion Sort, Merge Sort, Selection 
 
 ```bash
   git clone https://github.com/reynaldomarchell/bimsq-sort.git
+  git clone https://github.com/ihsaanhardyanto/bimsq-sort.git
 ```
 
 2.  Go to the project directory
