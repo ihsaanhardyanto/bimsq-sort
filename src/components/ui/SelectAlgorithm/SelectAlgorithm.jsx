@@ -5,7 +5,7 @@ function SelectAlgorithm({ onChange }) {
       <select
         name="algorithms"
         id="algorithms"
-        className="text-center font-bold h-fit w-28 md:w-40 p-1 mb-2 bg-slate-700 text-white border-4 border-solid border-indigo-800 rounded-xl text-base hover:bg-slate-600 transition-all duration-300 ease-in-out"
+        className="text-center font-bold h-fit w-28 md:w-40 p-1 bg-slate-700 text-white border-4 border-solid border-indigo-800 rounded-xl text-base hover:bg-slate-600 transition-all duration-300 ease-in-out"
         onChange={onChange}
       >
         <option value="">Click here</option>

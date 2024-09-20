@@ -15,24 +15,26 @@ import {
 
 function Productpage() {
   const [array, setArray] = useState([]);
-  const [arraySteps, setArraySteps] = useState([]);
-  const [colorSteps, setColorSteps] = useState([]);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [arraySteps1, setArraySteps1] = useState([]);
+  const [arraySteps2, setArraySteps2] = useState([]);
+  const [colorSteps1, setColorSteps1] = useState([]);
+  const [colorSteps2, setColorSteps2] = useState([]);
+  const [currentStep1, setCurrentStep1] = useState(0);
+  const [currentStep2, setCurrentStep2] = useState(0);
   const [arraySize, setArraySize] = useState(15);
   const [delay, setDelay] = useState(50);
-  const [algorithm, setAlgorithm] = useState("");
+  const [algorithm1, setAlgorithm1] = useState("");
+  const [algorithm2, setAlgorithm2] = useState("");
   const [timeouts, setTimeouts] = useState([]);
   const [startGeneratingSteps, setStartGeneratingSteps] = useState(false);
-  const [sortingTime, setSortingTime] = useState(0); // added state for sorting time
-  const [isSortingFinished, setIsSortingFinished] = useState(false); // added state for sorting finish status
+  const [sortingTime1, setSortingTime1] = useState(0);
+  const [sortingTime2, setSortingTime2] = useState(0);
+  const [isSortingFinished, setIsSortingFinished] = useState(false);
 
-  // returns the sorting algorithm delay speed using formula
-  // formula: speed = 1000/arraySize
   const getDelay = (arraySize) => {
     return Math.floor(1000 / arraySize);
   };
 
-  // change size of random array and corresponding sorting speed
   const handleArraySizeAndSpeedChange = (newArraySize) => {
     const size = parseInt(newArraySize);
     const newDelay = getDelay(size);
@@ -40,7 +42,6 @@ function Productpage() {
     setDelay(newDelay);
   };
 
-  // returns an array of n numbers where n =arraySize
   const generateRandomArray = () => {
     let randomArray = [];
     for (let i = 0; i < arraySize; i++) {
@@ -49,25 +50,40 @@ function Productpage() {
     return randomArray;
   };
 
-  // clear color key and set it to default
   const clearKey = () => {
     let blankKey = new Array(arraySize).fill(0);
-    setColorSteps([blankKey]);
+    setColorSteps1([blankKey]);
+    setColorSteps2([blankKey]);
   };
 
-  // generates steps
   const generateSteps = () => {
-    let arr = [...array];
-    let steps = [array.slice()];
-    let clrSteps = [...colorSteps];
-    sort(arr, steps, clrSteps);
-    setArraySteps(steps);
-    setColorSteps(clrSteps);
-    setStartGeneratingSteps(false); // after generating steps, set it to false
+    let arr1 = [...array];
+    let arr2 = [...array];
+    let steps1 = [array.slice()];
+    let steps2 = [array.slice()];
+    let clrSteps1 = [...colorSteps1];
+    let clrSteps2 = [...colorSteps2];
+
+    // Catat waktu eksekusi untuk algoritma pertama
+    
+    sort(arr1, steps1, clrSteps1, algorithm1, setSortingTime1);
+    const endTime1 = performance.now();
+    setSortingTime1(endTime1);
+
+    // Catat waktu eksekusi untuk algoritma kedua
+    
+    sort(arr2, steps2, clrSteps2, algorithm2, setSortingTime2);
+    const endTime2 = performance.now();
+    setSortingTime2(endTime2);
+
+    setArraySteps1(steps1);
+    setArraySteps2(steps2);
+    setColorSteps1(clrSteps1);
+    setColorSteps2(clrSteps2);
+    setStartGeneratingSteps(false);
   };
 
-  // calls the appropriate algorithm to set the sorting steps
-  const sort = (array, arraySteps, colorSteps) => {
+  const sort = (array, arraySteps, colorSteps, algorithm) => {
     switch (algorithm) {
       case "Bubble Sort":
         BubbleSort(array, arraySteps, colorSteps);
@@ -84,8 +100,6 @@ function Productpage() {
       case "Quick Sort":
         QuickSort(array, arraySteps, colorSteps);
         break;
-      default:
-        console.error("Invalid algorithm selected!");
     }
   };
 
@@ -94,114 +108,140 @@ function Productpage() {
     setTimeouts([]);
   };
 
-  // Initializes the app by generating random array
   const initialize = () => {
     const newArray = generateRandomArray();
     setArray(newArray);
-    setArraySteps([newArray]);
-    setCurrentStep(0);
+    setArraySteps1([newArray]);
+    setArraySteps2([newArray]);
+    setCurrentStep1(0);
+    setCurrentStep2(0);
     setDelay(getDelay(arraySize));
     clearKey();
     clearTimeouts();
-    setStartGeneratingSteps(true); //invoke start generating steps
-    setIsSortingFinished(false); // reset sorting finish status
-    setSortingTime(0); // reset sorting time
+    setStartGeneratingSteps(true);
+    setIsSortingFinished(false);
+    setSortingTime1(0);
+    setSortingTime2(0);
   };
 
   const initialize_with_current_array = () => {
     const arrayCopy = array.slice();
-    setArraySteps([arrayCopy]);
-    setCurrentStep(0);
+    setArraySteps1([arrayCopy]);
+    setArraySteps2([arrayCopy]);
+    setCurrentStep1(0);
+    setCurrentStep2(0);
     setDelay(getDelay(arraySize));
     clearKey();
     clearTimeouts();
-    setStartGeneratingSteps(true); //invoke start generating steps
-    setIsSortingFinished(false); // reset sorting finish status
-    setSortingTime(0); // reset sorting time
+    setStartGeneratingSteps(true);
+    setIsSortingFinished(false);
+    setSortingTime1(0);
+    setSortingTime2(0);
   };
 
-  // start playing sort animation
   const startSorting = () => {
     let timeoutsArray = [];
-    let currStep = currentStep;
-    // If already at sorted state, just return back
-    if (currentStep === arraySteps.length - 1) {
+    let currStep1 = currentStep1;
+    let currStep2 = currentStep2;
+    if (
+      currentStep1 === arraySteps1.length - 1 &&
+      currentStep2 === arraySteps2.length - 1
+    ) {
       return false;
     }
-    for (let i = 0; i < arraySteps.length; i++) {
-      let timeout = setTimeout(() => {
-        setArray([...arraySteps[i]]);
-        setCurrentStep(currStep++);
-        if (i === arraySteps.length - 1) {
-          setIsSortingFinished(true); // set sorting finish status to true
-          const time = delay * arraySteps.length;
-          setSortingTime(time); // calculate sorting time
-        }
-      }, delay * (i + 1));
+    for (let i = 0; i < arraySteps1.length; i++) {
+      let timeout = setTimeout(
+        () => {
+          setArray([...arraySteps1[i]]);
+          setCurrentStep1(currStep1++);
+          if (i === arraySteps1.length - 1) {
+            setIsSortingFinished(true);
+          }
+        },
+        delay * (i + 1),
+      );
       timeoutsArray.push(timeout);
     }
-    console.log(`setting timeout`);
+    for (let i = 0; i < arraySteps2.length; i++) {
+      let timeout = setTimeout(
+        () => {
+          setArray([...arraySteps2[i]]);
+          setCurrentStep2(currStep2++);
+          if (i === arraySteps2.length - 1) {
+            setIsSortingFinished(true);
+          }
+        },
+        delay * (i + 1),
+      );
+      timeoutsArray.push(timeout);
+    }
     setTimeouts(timeoutsArray);
   };
 
-  // returns the bar width according to the arraysize
   const getBarWidth = () => {
     return Math.floor(500 / arraySize);
   };
 
-  // bars jsx object
-  const bars = array.map((number, index) => {
+  const bars1 = arraySteps1[currentStep1]?.map((number, index) => {
     return (
       <Bar
         key={index}
         index={index}
         length={number}
         width={getBarWidth()}
-        color={colorSteps[currentStep][index]}
+        color={colorSteps1[currentStep1][index]}
       />
     );
   });
 
-  // When the document loads, initialize with new array
+  const bars2 = arraySteps2[currentStep2]?.map((number, index) => {
+    return (
+      <Bar
+        key={index}
+        index={index}
+        length={number}
+        width={getBarWidth()}
+        color={colorSteps2[currentStep2][index]}
+      />
+    );
+  });
+
   useEffect(() => {
     initialize();
   }, [arraySize]);
 
-  // when the array is done initializing, generate steps
   useEffect(() => {
     if (startGeneratingSteps) {
       generateSteps();
     }
   }, [startGeneratingSteps]);
 
-  // when the algorithm changes, start generating steps again
   useEffect(() => {
     initialize_with_current_array();
-  }, [algorithm]);
+  }, [algorithm1, algorithm2]);
 
   return (
-    <div className="flex flex-col items-center font-inter min-w-min min-h-screen justify-between bg-slate-800">
+    <div className="flex min-h-screen min-w-min flex-col items-center justify-between bg-slate-800 font-inter">
       <Navbar
         handleArraySizeAndSpeedChange={handleArraySizeAndSpeedChange}
         arraySize={arraySize}
         generateNewArray={initialize}
-        setAlgorithm={setAlgorithm}
+        setAlgorithm1={setAlgorithm1}
+        setAlgorithm2={setAlgorithm2}
         startSorting={startSorting}
+        sortingTime1={sortingTime1}
+        sortingTime2={sortingTime2}
+        algorithm1={algorithm1}
+        algorithm2={algorithm2}
+        isSortingFinished={isSortingFinished}
       />
-      <div className="flex flex-row max-w-4xl justify-center items-center">
-        <div className="flex flex-row justify-evenly w-3/4 rotate-180 h-3/4 mr-4">
-          {bars}
+      <div className="flex max-w-4xl flex-row items-center justify-center">
+        <div className="mr-4 flex h-96 w-3/4 rotate-180 flex-row justify-evenly overflow-visible">
+          {bars1}
         </div>
-        {isSortingFinished && (
-          <div className="flex items-center justify-center text-white text-xl w-full h-full border rounded-md bg-slate-700 px-2 py-1 shadow-lg hover:bg-slate-600 transition-all duration-300 ease-in-out">
-            <p>
-              Sorting time:{" "}
-              <span className="text-orange-400">
-                {(sortingTime / 1000).toFixed(2)}s
-              </span>
-            </p>
-          </div>
-        )}
+        <div className="mr-4 flex h-96 w-3/4 rotate-180 flex-row justify-evenly overflow-visible">
+          {bars2}
+        </div>
       </div>
     </div>
   );

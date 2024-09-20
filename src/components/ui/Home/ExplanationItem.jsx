@@ -34,9 +34,15 @@ function ServiceItem({ title, description, step, complexity }) {
           </AccordionTrigger>
 
           <AccordionContent>
+            <h2 className="mb-1 mt-2 text-base font-semibold text-gray-600 dark:text-gray-200">
+              Description
+            </h2>
             <p className="text-md whitespace-pre-wrap text-justify text-gray-600 dark:text-gray-300">
               {description}
             </p>
+            <h2 className="mb-1 mt-2 text-base font-semibold text-gray-600 dark:text-gray-200">
+              Step
+            </h2>
             <p className="text-md whitespace-pre-wrap text-justify text-gray-600 dark:text-gray-300">
               {step}
             </p>

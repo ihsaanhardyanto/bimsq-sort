@@ -2,9 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { IoChevronBack } from "react-icons/io5";
 import RangeSlider from "../RangeSlider/RangeSlider";
 import SelectAlgorithm from "../SelectAlgorithm/SelectAlgorithm";
+import SortingTimeDisplay from "../SortingTimeDisplay/SortingTimeDisplay";
 
 function VerticalBar() {
-  return <div className="w-1 h-20 bg-slate-400"></div>;
+  return <div className="h-20 w-1 bg-slate-400"></div>;
 }
 
 function Navbar({
@@ -12,7 +13,13 @@ function Navbar({
   handleArraySizeAndSpeedChange,
   generateNewArray,
   startSorting,
-  setAlgorithm,
+  setAlgorithm1,
+  setAlgorithm2,
+  sortingTime1,
+  sortingTime2,
+  algorithm1,
+  algorithm2,
+  isSortingFinished,
 }) {
   const navigate = useNavigate();
 
@@ -27,8 +34,12 @@ function Navbar({
   };
 
   // handle changing of algorithm
-  const handleSortingAlgorithmChange = (event) => {
-    setAlgorithm(event.target.value);
+  const handleSortingAlgorithmChange1 = (event) => {
+    setAlgorithm1(event.target.value);
+  };
+
+  const handleSortingAlgorithmChange2 = (event) => {
+    setAlgorithm2(event.target.value);
   };
 
   // starts playing the sorting algorithm
@@ -37,21 +48,19 @@ function Navbar({
   };
 
   return (
-    <div className="bg-slate-900 text-white min-w-full flex flex-col items-center justify-center">
+    <div className="flex h-52 min-w-full flex-col items-center justify-center bg-slate-900 text-white">
       <div>
         <button
-          className="absolute left-8 top-8 px-2 py-1 text-slate-200 rounded-md bg-indigo-800 hover:bg-indigo-700 flex justify-between items-center transition-all duration-300 ease-in-out font-semibold"
+          className="absolute left-8 top-8 flex items-center justify-between rounded-md bg-indigo-800 px-2 py-1 font-semibold text-slate-200 transition-all duration-300 ease-in-out hover:bg-indigo-700"
           onClick={() => navigate("/")}
         >
           <IoChevronBack />
           <p>Back</p>
         </button>
-        <h1 className="text-3xl font-bold py-5">BIMSQ Sorting Visualizer</h1>
+        <h1 className="mt-8 text-3xl font-bold">BIMSQ Sorting Visualizer</h1>
       </div>
 
-      <div className="flex flex-row items-center justify-between p-4 gap-4 md:gap-8">
-         {/*// TODO:  Disini tempat custom angka array dari berapa sampai berapa */}
-      
+      <div className="flex flex-row items-center justify-between gap-4 p-4 md:gap-8">
         <div>
           <RangeSlider onChange={handleSizeAndSpeedChange} value={arraySize} />
         </div>
@@ -60,12 +69,13 @@ function Navbar({
           <VerticalBar />
         </div>
 
-        <div>
+        <div className="flex flex-col content-center items-center">
+          <h4 className="m-0 mb-2">Generate Array</h4>
           <button
-            className="p-1 w-24 md:w-40 inline bg-slate-700 text-white border-4 border-solid border-indigo-800 rounded-xl text-base hover:bg-slate-600 transition-all duration-300 ease-in-out"
+            className="inline w-24 rounded-xl border-4 border-solid border-indigo-800 bg-slate-700 p-1 text-base text-white transition-all duration-300 ease-in-out hover:bg-slate-600 md:w-40"
             onClick={generateNewArrayHandler}
           >
-            Generate Array
+            Generate
           </button>
         </div>
 
@@ -74,22 +84,36 @@ function Navbar({
         </div>
 
         <div>
-          <SelectAlgorithm onChange={handleSortingAlgorithmChange} />
+          <SelectAlgorithm onChange={handleSortingAlgorithmChange1} />
+        </div>
+
+        <div>
+          <SelectAlgorithm onChange={handleSortingAlgorithmChange2} />
         </div>
 
         <div>
           <VerticalBar />
         </div>
 
-        <div>
+        <div className="flex flex-col content-center items-center">
+          <h4 className="m-0 mb-2">Sort Array</h4>
           <button
-            className="p-1 w-20 md:w-28 inline bg-slate-700 text-white border-4 border-solid border-indigo-800 rounded-xl text-base hover:bg-slate-600 transition-all duration-300 ease-in-out"
+            className="inline w-20 rounded-xl border-4 border-solid border-indigo-800 bg-slate-700 p-1 text-base text-white transition-all duration-300 ease-in-out hover:bg-slate-600 md:w-28"
             onClick={sortArrayHandler}
           >
-            Sort!
+            Sort
           </button>
         </div>
       </div>
+
+      {isSortingFinished && (
+        <SortingTimeDisplay
+          sortingTime1={sortingTime1}
+          sortingTime2={sortingTime2}
+          algorithm1={algorithm1}
+          algorithm2={algorithm2}
+        />
+      )}
     </div>
   );
 }
