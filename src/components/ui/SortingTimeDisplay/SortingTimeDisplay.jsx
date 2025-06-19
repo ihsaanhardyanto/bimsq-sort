@@ -5,7 +5,7 @@ function SortingTimeDisplay({
   algorithm2,
 }) {
   return (
-    <div className="flex h-full w-full items-center justify-center gap-2 rounded-md border bg-slate-700 px-2 py-1 text-xl text-white shadow-lg transition-all duration-300 ease-in-out hover:bg-slate-600">
+    <div className="flex h-10 items-center justify-center gap-2 rounded-md border bg-slate-700 px-2 py-1 text-xl text-white shadow-lg transition-all duration-300 ease-in-out hover:bg-slate-600 ">
       <p>
         Sorting time for {algorithm1}:{" "}
         <span className="text-orange-400">

@@ -1,10 +1,8 @@
-import { useState, useEffect } from "react";
-
-// UI
+import { useState, useEffect, useRef, Fragment } from "react";
 import Navbar from "../components/ui/Navbar/Navbar";
 import Bar from "../components/ui/Bar/Bar";
+import SortingTimeDisplay from "../components/ui/SortingTimeDisplay/SortingTimeDisplay";
 
-// Algorithms
 import {
   MergeSort,
   InsertionSort,
@@ -21,7 +19,7 @@ function Productpage() {
   const [colorSteps2, setColorSteps2] = useState([]);
   const [currentStep1, setCurrentStep1] = useState(0);
   const [currentStep2, setCurrentStep2] = useState(0);
-  const [arraySize, setArraySize] = useState(15);
+  const [arraySize, setArraySize] = useState(5);
   const [delay, setDelay] = useState(50);
   const [algorithm1, setAlgorithm1] = useState("");
   const [algorithm2, setAlgorithm2] = useState("");
@@ -30,6 +28,14 @@ function Productpage() {
   const [sortingTime1, setSortingTime1] = useState(0);
   const [sortingTime2, setSortingTime2] = useState(0);
   const [isSortingFinished, setIsSortingFinished] = useState(false);
+
+  const [isSorting1Finished, setIsSorting1Finished] = useState(false);
+  const [isSorting2Finished, setIsSorting2Finished] = useState(false);
+  const [startTime1, setStartTime1] = useState(null);
+  const [startTime2, setStartTime2] = useState(null);
+  const intervalRef = useRef(null);
+  const [visualArray1, setVisualArray1] = useState([]);
+  const [visualArray2, setVisualArray2] = useState([]);
 
   const getDelay = (arraySize) => {
     return Math.floor(1000 / arraySize);
@@ -64,17 +70,8 @@ function Productpage() {
     let clrSteps1 = [...colorSteps1];
     let clrSteps2 = [...colorSteps2];
 
-    // Catat waktu eksekusi untuk algoritma pertama
-    
-    sort(arr1, steps1, clrSteps1, algorithm1, setSortingTime1);
-    const endTime1 = performance.now();
-    setSortingTime1(endTime1);
-
-    // Catat waktu eksekusi untuk algoritma kedua
-    
-    sort(arr2, steps2, clrSteps2, algorithm2, setSortingTime2);
-    const endTime2 = performance.now();
-    setSortingTime2(endTime2);
+    sort(arr1, steps1, clrSteps1, algorithm1);
+    sort(arr2, steps2, clrSteps2, algorithm2);
 
     setArraySteps1(steps1);
     setArraySteps2(steps2);
@@ -124,7 +121,7 @@ function Productpage() {
     setSortingTime2(0);
   };
 
-  const initialize_with_current_array = () => {
+  const initializeWithCurrentArray = () => {
     const arrayCopy = array.slice();
     setArraySteps1([arrayCopy]);
     setArraySteps2([arrayCopy]);
@@ -140,35 +137,61 @@ function Productpage() {
   };
 
   const startSorting = () => {
+    console.log(
+      "StartSorting dipanggil, currentStep1:",
+      currentStep1,
+      "currentStep2:",
+      currentStep2,
+    );
     let timeoutsArray = [];
     let currStep1 = currentStep1;
     let currStep2 = currentStep2;
+
+    setIsSorting1Finished(false);
+    setIsSorting2Finished(false);
+
+    const actualStartTime1 = performance.now() + delay;
+    const actualStartTime2 = performance.now() + delay;
+
     if (
       currentStep1 === arraySteps1.length - 1 &&
       currentStep2 === arraySteps2.length - 1
     ) {
+      console.log("Sorting tidak dijalankan karena sudah selesai.");
       return false;
     }
+
     for (let i = 0; i < arraySteps1.length; i++) {
       let timeout = setTimeout(
         () => {
-          setArray([...arraySteps1[i]]);
+          if (i === 0) {
+            setStartTime1(performance.now());
+          }
+          setVisualArray1([...arraySteps1[i]]);
           setCurrentStep1(currStep1++);
           if (i === arraySteps1.length - 1) {
-            setIsSortingFinished(true);
+            setIsSorting1Finished(true);
+            const finalTime = performance.now() - actualStartTime1;
+            setSortingTime1(finalTime);
           }
         },
         delay * (i + 1),
       );
       timeoutsArray.push(timeout);
     }
+
     for (let i = 0; i < arraySteps2.length; i++) {
       let timeout = setTimeout(
         () => {
-          setArray([...arraySteps2[i]]);
+          if (i === 0) {
+            setStartTime2(performance.now());
+          }
+          setVisualArray2([...arraySteps2[i]]);
           setCurrentStep2(currStep2++);
           if (i === arraySteps2.length - 1) {
-            setIsSortingFinished(true);
+            setIsSorting2Finished(true);
+            const finalTime = performance.now() - actualStartTime2;
+            setSortingTime2(finalTime);
           }
         },
         delay * (i + 1),
@@ -176,32 +199,91 @@ function Productpage() {
       timeoutsArray.push(timeout);
     }
     setTimeouts(timeoutsArray);
+    console.log(
+      "Sorting dimulai, jumlah langkah:",
+      arraySteps1.length,
+      arraySteps2.length,
+    );
   };
+
+  const resetSorting = () => {
+    console.log("resetSorting dipanggil");
+    clearTimeouts();
+    setIsSorting1Finished(false);
+    setIsSorting2Finished(false);
+    setSortingTime1(0);
+    setSortingTime2(0);
+    setStartTime1(null);
+    setStartTime2(null);
+    setIsSortingFinished(false);
+    setCurrentStep1(0);
+    setCurrentStep2(0);
+    setStartGeneratingSteps(false);
+    setAlgorithm1("");
+    setAlgorithm2("");
+  };
+
+  useEffect(() => {
+    if (
+      (!isSorting1Finished || !isSorting2Finished) &&
+      (startTime1 || startTime2)
+    ) {
+      intervalRef.current = setInterval(() => {
+        if (!isSorting1Finished && startTime1) {
+          setSortingTime1(performance.now() - startTime1);
+        }
+        if (!isSorting2Finished && startTime2) {
+          setSortingTime2(performance.now() - startTime2);
+        }
+      }, 100);
+    } else {
+      clearInterval(intervalRef.current);
+    }
+    return () => clearInterval(intervalRef.current);
+  }, [isSorting1Finished, isSorting2Finished, startTime1, startTime2]);
+
+  useEffect(() => {
+    setVisualArray1(arraySteps1[currentStep1] || []);
+  }, [arraySteps1, currentStep1]);
+
+  useEffect(() => {
+    setVisualArray2(arraySteps2[currentStep2] || []);
+  }, [arraySteps2, currentStep2]);
 
   const getBarWidth = () => {
-    return Math.floor(500 / arraySize);
+    if (arraySize <= 10) {
+      return Math.min(Math.floor(500 / arraySize), 100);
+    } else if (arraySize <= 25) {
+      return Math.min(Math.floor(400 / arraySize), 25);
+    } else if (arraySize <= 50) {
+      return Math.min(Math.floor(350 / arraySize), 15);
+    } else if (arraySize <= 100) {
+      return Math.min(Math.floor(300 / arraySize), 8);
+    } else {
+      return Math.max(Math.floor(250 / arraySize), 2);
+    }
   };
 
-  const bars1 = arraySteps1[currentStep1]?.map((number, index) => {
+  const bars1 = visualArray1?.map((number, index) => {
     return (
       <Bar
         key={index}
         index={index}
         length={number}
         width={getBarWidth()}
-        color={colorSteps1[currentStep1][index]}
+        color={colorSteps1[currentStep1]?.[index]}
       />
     );
   });
 
-  const bars2 = arraySteps2[currentStep2]?.map((number, index) => {
+  const bars2 = visualArray2?.map((number, index) => {
     return (
       <Bar
         key={index}
         index={index}
         length={number}
         width={getBarWidth()}
-        color={colorSteps2[currentStep2][index]}
+        color={colorSteps2[currentStep2]?.[index]}
       />
     );
   });
@@ -217,33 +299,48 @@ function Productpage() {
   }, [startGeneratingSteps]);
 
   useEffect(() => {
-    initialize_with_current_array();
+    initializeWithCurrentArray();
   }, [algorithm1, algorithm2]);
 
   return (
-    <div className="flex min-h-screen min-w-min flex-col items-center justify-between bg-slate-800 font-inter">
-      <Navbar
-        handleArraySizeAndSpeedChange={handleArraySizeAndSpeedChange}
-        arraySize={arraySize}
-        generateNewArray={initialize}
-        setAlgorithm1={setAlgorithm1}
-        setAlgorithm2={setAlgorithm2}
-        startSorting={startSorting}
-        sortingTime1={sortingTime1}
-        sortingTime2={sortingTime2}
-        algorithm1={algorithm1}
-        algorithm2={algorithm2}
-        isSortingFinished={isSortingFinished}
-      />
-      <div className="flex max-w-4xl flex-row items-center justify-center">
-        <div className="mr-4 flex h-96 w-3/4 rotate-180 flex-row justify-evenly overflow-visible">
-          {bars1}
+    <Fragment>
+      <div className="flex min-h-screen flex-col bg-slate-800 font-inter">
+        <div className="relative z-10 w-full flex-shrink-0">
+          <Navbar
+            handleArraySizeAndSpeedChange={handleArraySizeAndSpeedChange}
+            arraySize={arraySize}
+            generateNewArray={initialize}
+            setAlgorithm1={setAlgorithm1}
+            setAlgorithm2={setAlgorithm2}
+            startSorting={startSorting}
+            sortingTime1={sortingTime1}
+            sortingTime2={sortingTime2}
+            algorithm1={algorithm1}
+            algorithm2={algorithm2}
+            isSortingFinished={isSortingFinished}
+            resetSorting={resetSorting}
+          />
         </div>
-        <div className="mr-4 flex h-96 w-3/4 rotate-180 flex-row justify-evenly overflow-visible">
-          {bars2}
+        <div className="w-full flex-shrink-0">
+          <SortingTimeDisplay
+            sortingTime1={sortingTime1}
+            sortingTime2={sortingTime2}
+            algorithm1={algorithm1}
+            algorithm2={algorithm2}
+          />
+        </div>
+        <div className="flex min-h-0 w-full flex-1 items-end justify-center bg-slate-800 py-4">
+          <div className="flex w-full max-w-7xl items-center justify-center gap-2 px-4 md:gap-6">
+            <div className="flex flex-row items-end justify-center px-2">
+              {bars1}
+            </div>
+            <div className="flex flex-row items-end justify-center px-2">
+              {bars2}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </Fragment>
   );
 }
 

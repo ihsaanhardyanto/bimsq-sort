@@ -1,11 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
-  darkMode: "class", // Corrected to a string
+  darkMode: "class",
   theme: {
     extend: {
       fontFamily: {
-        inter: ["Inter", "serif"], // Capitalized 'Inter'
+        inter: ["Inter", "serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

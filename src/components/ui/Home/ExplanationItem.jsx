@@ -4,6 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { ChevronDownIcon } from "@radix-ui/react-icons";
 
 function ServiceItem({ title, description, step, complexity }) {
   return (
@@ -17,9 +18,10 @@ function ServiceItem({ title, description, step, complexity }) {
               </h1>
               <div>
                 <h2 className="mb-3 mt-2 text-base font-semibold text-gray-600 dark:text-gray-200">
-                  Complexity
+                  Complexity  
                 </h2>
-                <p className="flex flex-row flex-wrap items-center justify-center gap-2 text-xs md:text-sm">
+                
+                <p className="flex flex-row flex-wrap justify-center gap-2 text-xs md:text-sm">
                   {complexity.map((item) => (
                     <span
                       key={item}

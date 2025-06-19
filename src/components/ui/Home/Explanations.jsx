@@ -6,7 +6,7 @@ function Services() {
   return (
     <div className="py-12">
       <SectionTitle>Explanations</SectionTitle>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="flex flex-col md:flex-row gap-5">
         {explanations.map((explanation) => (
           <ExplanationItem
             key={explanation.title}
